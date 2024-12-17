@@ -52,7 +52,7 @@ add_subdirectory(deps/entt)
 
 # add executable
 add_executable(
-  ${PROJECT_NAME} 
+  ${PROJECT_NAME}
   src/main.cpp
   src/application.cpp
 )
