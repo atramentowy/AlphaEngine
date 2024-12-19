@@ -8,9 +8,37 @@ void Application::Init() {
 	SetTargetFPS(60);
 
     player.Init();
+
+
 }
 
 void Application::Run() {
+    // Physics world setup
+    btBroadphaseInterface* broadphase = new btDbvtBroadphase();
+    btDefaultCollisionConfiguration* collisionConfig = new btDefaultCollisionConfiguration();
+    btCollisionDispatcher* dispatcher = new btCollisionDispatcher(collisionConfig);
+    btSequentialImpulseConstraintSolver* solver = new btSequentialImpulseConstraintSolver();
+    btDiscreteDynamicsWorld* dynamicsWorld = new btDiscreteDynamicsWorld(dispatcher, broadphase, solver, collisionConfig);
+
+    // Set gravity
+    dynamicsWorld->setGravity(btVector3(0, -9.8f, 0));
+
+    btCollisionShape* groundShape = new btBoxShape(btVector3(50, 1, 50)); // Size of the ground
+    btDefaultMotionState* groundMotion = new btDefaultMotionState(btTransform(btQuaternion(0, 0, 0, 1), btVector3(0, -1, 0)));
+    btRigidBody::btRigidBodyConstructionInfo groundRBCI(0, groundMotion, groundShape, btVector3(0, 0, 0)); // Mass 0 for static
+    btRigidBody* groundBody = new btRigidBody(groundRBCI);
+    dynamicsWorld->addRigidBody(groundBody);
+
+    // Player
+    btCollisionShape* playerShape = new btCapsuleShape(0.5f, 1.8f); // Capsule for player
+    btDefaultMotionState* playerMotion = new btDefaultMotionState(btTransform(btQuaternion(0, 0, 0, 1), btVector3(0, 5, 0))); // Start position
+    btScalar playerMass = 1.0f;
+    btVector3 playerInertia(0, 0, 0);
+    playerShape->calculateLocalInertia(playerMass, playerInertia);
+    btRigidBody::btRigidBodyConstructionInfo playerRBCI(playerMass, playerMotion, playerShape, playerInertia);
+    btRigidBody* playerBody = new btRigidBody(playerRBCI);
+    dynamicsWorld->addRigidBody(playerBody);
+
     // Generates some random columns
     for (int i = 0; i < 20; i++)
     {
@@ -20,89 +48,47 @@ void Application::Run() {
     }
 
     while (!WindowShouldClose()) {
+        float deltaTime = GetFrameTime();
+        // Step the physics world
+        dynamicsWorld->stepSimulation(deltaTime, 10);
+
+        // Get player position
+        btTransform playerTransform;
+        playerBody->getMotionState()->getWorldTransform(playerTransform);
+        btVector3 playerPosition = playerTransform.getOrigin();
+
+        // Update player position in your game
+        // camera.position = { playerPosition.getX(), playerPosition.getY(), playerPosition.getZ() };
+
+        int numManifolds = dynamicsWorld->getDispatcher()->getNumManifolds();
+        for (int i = 0; i < numManifolds; i++) {
+            btPersistentManifold* contactManifold = dynamicsWorld->getDispatcher()->getManifoldByIndexInternal(i);
+            const btCollisionObject* objA = contactManifold->getBody0();
+            const btCollisionObject* objB = contactManifold->getBody1();
+            
+            // Handle collision between objA and objB
+        }
+
         Update();
         Draw();
     }
+    delete dynamicsWorld;
+    delete solver;
+    delete dispatcher;
+    delete collisionConfig;
+    delete broadphase;
+    delete groundBody;
+    delete groundShape;
+    delete playerBody;
+    delete playerShape;
+
     CloseWindow();
 }
-
-//void Application::Input() {}
 
 void Application::Update() {
     float deltaTime = GetFrameTime();
 
     player.Update(deltaTime);
-
-    /*
-    // Switch camera projection
-    // if (IsKeyPressed(KEY_P)) {
-    //     if (camera.projection == CAMERA_PERSPECTIVE) {
-    //         // Create isometric view
-    //         cameraMode = CAMERA_THIRD_PERSON;
-    //         // Note: The target distance is related to the render distance in the orthographic projection
-    //         camera.position = Vector3{ 0.0f, 2.0f, -100.0f };
-    //         camera.target = Vector3{ 0.0f, 2.0f, 0.0f };
-    //         camera.up = Vector3{ 0.0f, 1.0f, 0.0f };
-    //         camera.projection = CAMERA_ORTHOGRAPHIC;
-    //         camera.fovy = 20.0f; // near plane width in CAMERA_ORTHOGRAPHIC
-    //         CameraYaw(&camera, -135 * DEG2RAD, true);
-    //         CameraPitch(&camera, -45 * DEG2RAD, true, true, false);
-    //     } else if (camera.projection == CAMERA_ORTHOGRAPHIC) {
-    //         // Reset to default view
-    //         cameraMode = CAMERA_FIRST_PERSON;
-    //         camera.position = Vector3{ 0.0f, 2.0f, 0.0f };
-    //         camera.target = Vector3{ 0.0f, 2.0f, 0.0f };
-    //         camera.up = Vector3{ 0.0f, 1.0f, 0.0f };
-    //         camera.projection = CAMERA_PERSPECTIVE;
-    //         camera.fovy = 60.0f;
-    //     }
-    // }
-
-    // Switch camera mode
-    if (IsKeyPressed(KEY_ONE)) {
-        cameraMode = CAMERA_FREE;
-        camera.up = Vector3{ 0.0f, 1.0f, 0.0f }; // Reset roll
-    }
-
-    if (IsKeyPressed(KEY_TWO)) {
-        cameraMode = CAMERA_FIRST_PERSON;
-        camera.up = Vector3{ 0.0f, 1.0f, 0.0f }; // Reset roll
-    }
-
-    if (IsKeyPressed(KEY_THREE)) {
-        cameraMode = CAMERA_THIRD_PERSON;
-        camera.up = Vector3{ 0.0f, 1.0f, 0.0f }; // Reset roll
-    }
-
-    if (IsKeyPressed(KEY_FOUR)) {
-        cameraMode = CAMERA_ORBITAL;
-        camera.up = Vector3{ 0.0f, 1.0f, 0.0f }; // Reset roll
-    }
-
-    // Switch camera projection
-    if (IsKeyPressed(KEY_P)) {
-        if (camera.projection == CAMERA_PERSPECTIVE) {
-            // Create isometric view
-            cameraMode = CAMERA_THIRD_PERSON;
-            // Note: The target distance is related to the render distance in the orthographic projection
-            camera.position = Vector3{ 0.0f, 2.0f, -100.0f };
-            camera.target = Vector3{ 0.0f, 2.0f, 0.0f };
-            camera.up = Vector3{ 0.0f, 1.0f, 0.0f };
-            camera.projection = CAMERA_ORTHOGRAPHIC;
-            camera.fovy = 20.0f; // near plane width in CAMERA_ORTHOGRAPHIC
-            CameraYaw(&camera, -135 * DEG2RAD, true);
-            CameraPitch(&camera, -45 * DEG2RAD, true, true, false);
-        } else if (camera.projection == CAMERA_ORTHOGRAPHIC) {
-            // Reset to default view
-            cameraMode = CAMERA_THIRD_PERSON;
-            camera.position = Vector3{ 0.0f, 2.0f, 10.0f };
-            camera.target = Vector3{ 0.0f, 2.0f, 0.0f };
-            camera.up = Vector3{ 0.0f, 1.0f, 0.0f };
-            camera.projection = CAMERA_PERSPECTIVE;
-            camera.fovy = 60.0f;
-        }
-    }
-    */
 }
 
 void Application::Draw() {
@@ -122,16 +108,9 @@ void Application::Draw() {
             DrawCubeWires(positions[i], 2.0f, heights[i], 2.0f, MAROON);
         }
 
-        // Draw player cube
-        if (player.cameraMode == CAMERA_THIRD_PERSON) {
-            DrawCube(player.position, 1.0f, 2.0f, 1.0f, RED);
-        } 
-        else if (player.cameraMode == CAMERA_FIRST_PERSON) {
-            DrawCubeWires(player.position, 1.0f, 2.0f, 1.0f, RED);
-        }
+        player.Draw();
 
     EndMode3D();
-
 
     DrawRectangle(600, 5, 195, 120, Fade(BLACK, 0.5f));
 
