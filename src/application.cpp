@@ -8,8 +8,6 @@ void Application::Init() {
 	SetTargetFPS(60);
 
     player.Init();
-
-
 }
 
 void Application::Run() {

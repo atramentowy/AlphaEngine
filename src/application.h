@@ -4,12 +4,9 @@
 #include <iostream>
 #include <stdexcept>
 
-//#include <raylib.h>
-//#include <raymath.h>
-//#include <rcamera.h>
 #include "player.h"
 
-#include "btBulletDynamicsCommon.h"
+#include <btBulletDynamicsCommon.h>
 // #include <entt/entt.hpp>
 // #include <entt/entity/registry.hpp>
 
