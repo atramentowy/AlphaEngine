@@ -1,35 +1,68 @@
 #ifndef APPLICATION_H
 #define APPLICATION_H
 
+#include "scene_manager.h"
+#include "main_menu_scene.h"
+#include "game_scene.h"
+#include <raylib.h>
+
 #include <iostream>
 #include <stdexcept>
 
-#include "player.h"
-
-#include <btBulletDynamicsCommon.h>
-// #include <entt/entt.hpp>
-// #include <entt/entity/registry.hpp>
-
 class Application {
 private:
-    const int screenWidth = 800;
-	const int screenHeight = 450;
+    SceneManager sceneManager;
+    MainMenuScene* mainMenuScene;
+    GameScene* gameScene;
 
-    Player player;
-    
-    // floor settings
-    Vector3 floorPosition = { 0.0f, 0.0f, 0.0f };
-    Vector3 floorSize = { 50.0f, 1.0f, 50.0f };
-
-    // cubes settings
-    float heights[20] = { 0 };
-    Vector3 positions[20] = { 0 };
-    Color colors[20] = { 0 };
 public:
-    void Init();
-    void Run();
-    void Update();
-    void Draw();
+    Application() : sceneManager(), mainMenuScene(nullptr), gameScene(nullptr) {}
+
+    SceneManager* GetSceneManager() {
+        return &sceneManager;
+    }
+
+    void Init() {
+        InitWindow(800, 600, "Raylib fps game");
+        SetTargetFPS(60);
+        HideCursor();
+
+        // Create scenes
+        mainMenuScene = new MainMenuScene();
+        gameScene = new GameScene();
+
+        mainMenuScene->SetSceneManager(GetSceneManager());
+        gameScene->SetSceneManager(GetSceneManager());
+
+        // Set initial scene
+        sceneManager.SetScene(mainMenuScene);
+    }
+
+    void Run() {
+        while(!WindowShouldClose()) {
+            float deltaTime = GetFrameTime();
+            sceneManager.Update(deltaTime);
+
+            BeginDrawing();
+            sceneManager.Draw();
+            EndDrawing();
+        }
+    }
+
+    void Cleanup() {
+        // Unload and delete scenes to free memory
+        if (mainMenuScene) {
+            mainMenuScene->Unload();
+            delete mainMenuScene;
+        }
+
+        if (gameScene) {
+            gameScene->Unload();
+            delete gameScene;
+        }
+
+        CloseWindow();
+    }
 };
 
 #endif

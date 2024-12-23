@@ -83,7 +83,6 @@ add_subdirectory(deps/entt)
 add_executable(
   ${PROJECT_NAME}
   src/main.cpp
-  src/application.cpp
 )
 
 target_link_libraries(
