@@ -28,10 +28,14 @@ public:
     bool isJumping = false;
     bool isOnGround = false;
 
-    float maxJumpVelocity = 20.0f;
+    float maxJumpVelocity = 35.0f; // Changes jump height and jump speed
     float currentJumpVelocity = 0.0f;
-    float jumpTime = 0.3f;
+
+    float jumpTime = 0.45f; // How long jump lasts
     float jumpTimer = 0.0f;
+
+    float jumpCooldown = 0.6f;
+    float jumpCooldownTimer = 0.0f;
 
     // Mouse
     float mouseSensitivity = 0.1f;
@@ -54,9 +58,8 @@ public:
         playerBody->body->setAngularFactor(btVector3(0, 1, 0)); // Keep upright
 
         // Reduce gravity for slower jump
-        btVector3 customGravity(0, -6.0f, 0); 
+        // btVector3 customGravity(0, -6.0f, 0);
         // playerBody->body->setGravity(customGravity);
-        // playerBody->body->setFriction(0.0f);
 
         camera.target = Vector3{0.0f, 0.0f, 0.0f};
         camera.position = Vector3{ 0.0f, 2.8f, 0.0f };
@@ -123,12 +126,17 @@ public:
         world->rayTest(rayStart, rayEnd, rayCallback);
         isOnGround = rayCallback.hasHit();
 
-        if(IsKeyDown(KEY_SPACE) && !isJumping && isOnGround) {
+        // Jump
+        if(IsKeyDown(KEY_SPACE) && !isJumping && isOnGround && jumpCooldownTimer <= 0.0f) {
             jumpTimer = jumpTime;
             currentJumpVelocity = 0.0f;
             isJumping = true;
             isOnGround = false;
+
+            jumpCooldownTimer = jumpCooldown;
         }
+
+        if (jumpCooldownTimer > 0.0f) jumpCooldownTimer -= deltaTime;  // Decrease the cooldown timer each frame
 
         if(isJumping) {
             if(jumpTimer > 0.0f) {

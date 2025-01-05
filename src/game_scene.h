@@ -8,6 +8,8 @@
 
 #include "player.h"
 
+#include "rlgl.h"
+
 class GameScene : public Scene {
 public:
     // Physics config
@@ -25,6 +27,11 @@ public:
 
     Player player;
 
+    // Skybox
+    Mesh cube;
+    Shader skyboxShader;
+    Model skybox;
+
     // pause state
     bool paused = false;
 
@@ -37,7 +44,7 @@ public:
         HideCursor();
         DisableCursor();
         // Bullet Physics members
-        collisionConfig = new btDefaultCollisionConfiguration();;
+        collisionConfig = new btDefaultCollisionConfiguration();
         dispatcher = new btCollisionDispatcher(collisionConfig);
         broadphase = new btDbvtBroadphase();
         solver = new btSequentialImpulseConstraintSolver();
@@ -71,6 +78,20 @@ public:
             positions[i] = Vector3{ (float)GetRandomValue(-15, 15), heights[i]/2.0f, (float)GetRandomValue(-15, 15) };
             colors[i] = Color{ static_cast<unsigned char>(GetRandomValue(20, 255)), static_cast<unsigned char>(GetRandomValue(10, 55)), 30, 255 };
         }
+
+        // Initialize skybox components
+        cube = GenMeshCube(1.0f, 1.0f, 1.0f);
+        skybox = LoadModelFromMesh(cube);
+
+        skyboxShader = LoadShader("D:/Projects/raylib_game/src/shaders/skybox.vs", "D:/Projects/raylib_game/src/shaders/skybox.fs");
+        // Configure skybox material
+        Material skyboxMaterial = LoadMaterialDefault();
+        skyboxMaterial.shader = skyboxShader;
+        skybox.materials[0] = skyboxMaterial;
+
+        if (skyboxShader.id == 0) {
+            std::cout << "Shader failed to load!" << std::endl;
+        }
     }
 
     void Update(float deltaTime) override {
@@ -91,13 +112,32 @@ public:
     }
 
     void Draw() override {
+        // skybox
+        Matrix view = GetCameraMatrix(player.camera);
+        // Matrix projection = GetCameraProjection(player.camera, CAMERA_PERSPECTIVE);
+        Matrix projection = MatrixPerspective(45.0f * DEG2RAD, (float)GetScreenWidth() / GetScreenHeight(), 0.1f, 1000.0f);
+        // Remove translation from view matrix
+        // Remove translation from the view matrix for the skybox
+        view.m12 = 0.0f;  // Reset X translation
+        view.m13 = 0.0f;  // Reset Y translation
+        view.m14 = 0.0f;  // Reset Z translation
+
+        SetShaderValueMatrix(skybox.materials[0].shader, GetShaderLocation(skybox.materials[0].shader, "view"), view);
+        SetShaderValueMatrix(skybox.materials[0].shader, GetShaderLocation(skybox.materials[0].shader, "projection"), projection);
+
         ClearBackground(RAYWHITE);
         BeginMode3D(player.camera);
+            // Draw skybox
+            rlDisableBackfaceCulling();  // Ensure inside of the cube is visible
+            rlDisableDepthMask();
+            DrawModel(skybox, player.camera.position, 1.0f, WHITE);
+            rlEnableBackfaceCulling();
+            rlEnableDepthMask();
 
             DrawGrid(30, 1.0f);
 
             // btVector3 position = spherePosition;
-            DrawCube(Vector3{ -16.0f, 2.5f, 0.0f }, 1.0f, 5.0f, 32.0f, BLUE);     // Draw a blue wall
+            DrawCube(Vector3{ -16.0f, 2.5f, 0.0f }, 1.0f, 5.0f, 32.0f, RED);     // Draw a blue wall
             DrawCube(Vector3{ 16.0f, 2.5f, 0.0f }, 1.0f, 5.0f, 32.0f, LIME);      // Draw a green wall
             DrawCube(Vector3{ 0.0f, 2.5f, 16.0f }, 32.0f, 5.0f, 1.0f, GOLD);      // Draw a yellow wall
 
@@ -137,7 +177,7 @@ public:
         );
         DrawText(TextFormat("- position: (%06.3f, %06.3f, %06.3f)", player.camera.position.x, player.camera.position.y, player.camera.position.z), 610, 65, 10, WHITE);
         DrawText(TextFormat("- target: (%06.3f, %06.3f, %06.3f)", player.camera.target.x, player.camera.target.y, player.camera.target.z), 610, 75, 10, WHITE);
-        DrawText(TextFormat("isOnGround: (%06.3f)", player.isOnGround), 610, 85, 10, WHITE);
+        DrawFPS(10, 10);
     }
 
     void Unload() override {
@@ -151,6 +191,9 @@ public:
         delete dispatcher;
         delete collisionConfig;
         delete broadphase;
+
+        UnloadModel(skybox);
+        UnloadShader(skyboxShader);
     }
 };
 
