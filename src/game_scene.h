@@ -2,13 +2,12 @@
 #define GAME_SCENE_H
 
 #include "scene.h"
-#include <raylib.h>
 
+#include <raylib.h>
 #include <iostream>
 
 #include "player.h"
-
-#include "rlgl.h"
+#include "skybox.h"
 
 class GameScene : public Scene {
 public:
@@ -26,11 +25,13 @@ public:
     btRigidBody* groundBody;
 
     Player player;
+    Skybox skybox;
 
-    // Skybox
-    Mesh cube;
-    Shader skyboxShader;
-    Model skybox;
+    // monkey model
+    Model model = LoadModel("D:/Projects/raylib_game/res/monkey.obj");
+    Texture2D texture = LoadTexture("D:/Projects/raylib_game/res/monkey.jpg");
+    
+    Vector3 modelPosition = { 0.0f, 1.0f, 0.0f };
 
     // pause state
     bool paused = false;
@@ -72,26 +73,13 @@ public:
         player.Init(dynamicsWorld);
 
         //Generates some random columns
-        for (int i = 0; i < 20; i++)
-        {
-            heights[i] = (float)GetRandomValue(1, 12);
-            positions[i] = Vector3{ (float)GetRandomValue(-15, 15), heights[i]/2.0f, (float)GetRandomValue(-15, 15) };
-            colors[i] = Color{ static_cast<unsigned char>(GetRandomValue(20, 255)), static_cast<unsigned char>(GetRandomValue(10, 55)), 30, 255 };
-        }
-
-        // Initialize skybox components
-        cube = GenMeshCube(1.0f, 1.0f, 1.0f);
-        skybox = LoadModelFromMesh(cube);
-
-        skyboxShader = LoadShader("D:/Projects/raylib_game/src/shaders/skybox.vs", "D:/Projects/raylib_game/src/shaders/skybox.fs");
-        // Configure skybox material
-        Material skyboxMaterial = LoadMaterialDefault();
-        skyboxMaterial.shader = skyboxShader;
-        skybox.materials[0] = skyboxMaterial;
-
-        if (skyboxShader.id == 0) {
-            std::cout << "Shader failed to load!" << std::endl;
-        }
+        // for (int i = 0; i < 20; i++)
+        // {
+        //     heights[i] = (float)GetRandomValue(1, 12);
+        //     positions[i] = Vector3{ (float)GetRandomValue(-15, 15), heights[i]/2.0f, (float)GetRandomValue(-15, 15) };
+        //     colors[i] = Color{ static_cast<unsigned char>(GetRandomValue(20, 255)), static_cast<unsigned char>(GetRandomValue(10, 55)), 30, 255 };
+        // }
+        model.materials[0].maps[MATERIAL_MAP_DIFFUSE].texture = texture;
     }
 
     void Update(float deltaTime) override {
@@ -112,29 +100,19 @@ public:
     }
 
     void Draw() override {
-        // skybox
         Matrix view = GetCameraMatrix(player.camera);
-        // Matrix projection = GetCameraProjection(player.camera, CAMERA_PERSPECTIVE);
         Matrix projection = MatrixPerspective(45.0f * DEG2RAD, (float)GetScreenWidth() / GetScreenHeight(), 0.1f, 1000.0f);
-        // Remove translation from view matrix
         // Remove translation from the view matrix for the skybox
         view.m12 = 0.0f;  // Reset X translation
         view.m13 = 0.0f;  // Reset Y translation
         view.m14 = 0.0f;  // Reset Z translation
 
-        SetShaderValueMatrix(skybox.materials[0].shader, GetShaderLocation(skybox.materials[0].shader, "view"), view);
-        SetShaderValueMatrix(skybox.materials[0].shader, GetShaderLocation(skybox.materials[0].shader, "projection"), projection);
-
         ClearBackground(RAYWHITE);
         BeginMode3D(player.camera);
-            // Draw skybox
-            rlDisableBackfaceCulling();  // Ensure inside of the cube is visible
-            rlDisableDepthMask();
-            DrawModel(skybox, player.camera.position, 1.0f, WHITE);
-            rlEnableBackfaceCulling();
-            rlEnableDepthMask();
+            skybox.Draw(&player, view, projection);
 
-            DrawGrid(30, 1.0f);
+            DrawGrid(50, 2.0f);
+            DrawPlane(Vector3{-0.01f, -0.01f, -0.01f}, Vector2{100.0f, 100.0f}, WHITE);
 
             // btVector3 position = spherePosition;
             DrawCube(Vector3{ -16.0f, 2.5f, 0.0f }, 1.0f, 5.0f, 32.0f, RED);     // Draw a blue wall
@@ -142,11 +120,13 @@ public:
             DrawCube(Vector3{ 0.0f, 2.5f, 16.0f }, 32.0f, 5.0f, 1.0f, GOLD);      // Draw a yellow wall
 
             //Draw some cubes around
-            for (int i = 0; i < 20; i++) {
-                DrawCube(positions[i], 2.0f, heights[i], 2.0f, colors[i]);
-                DrawCubeWires(positions[i], 2.0f, heights[i], 2.0f, MAROON);
-            }
-            
+            // for (int i = 0; i < 20; i++) {
+            //     DrawCube(positions[i], 2.0f, heights[i], 2.0f, colors[i]);
+            //     DrawCubeWires(positions[i], 2.0f, heights[i], 2.0f, MAROON);
+            // }
+
+            DrawModel(model, modelPosition, 1.0f, GRAY);
+
             player.Draw();
 
         EndMode3D();
@@ -192,8 +172,8 @@ public:
         delete collisionConfig;
         delete broadphase;
 
-        UnloadModel(skybox);
-        UnloadShader(skyboxShader);
+        UnloadTexture(texture);
+        UnloadModel(model);
     }
 };
 

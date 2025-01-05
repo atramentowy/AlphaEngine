@@ -5,7 +5,7 @@ in vec3 fragPosition;
 out vec4 fragColor;
 
 void main() {
-    vec4 darkBlue = vec4(0.0, 0.0, 0.5, 1.0);   // Dark blue
+    vec4 darkBlue = vec4(0.0, 0.0, 0.3, 1.0);   // Dark blue
     vec4 lightBlue = vec4(0.5, 0.7, 1.0, 1.0);  // Light blue
     vec4 white = vec4(1.0, 1.0, 1.0, 1.0);      // White
 

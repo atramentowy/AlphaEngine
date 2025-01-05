@@ -28,10 +28,10 @@ public:
     bool isJumping = false;
     bool isOnGround = false;
 
-    float maxJumpVelocity = 35.0f; // Changes jump height and jump speed
+    float maxJumpVelocity = 15.0f; // Changes jump height and jump speed
     float currentJumpVelocity = 0.0f;
 
-    float jumpTime = 0.45f; // How long jump lasts
+    float jumpTime = 0.5f; // How long jump lasts
     float jumpTimer = 0.0f;
 
     float jumpCooldown = 0.6f;
@@ -141,10 +141,10 @@ public:
         if(isJumping) {
             if(jumpTimer > 0.0f) {
                 jumpTimer -= deltaTime;
-                // currentJumpVelocity = maxJumpVelocity * (1 - (jumpTimer / jumpTime));
+                currentJumpVelocity = maxJumpVelocity * (1 - (jumpTimer / jumpTime));
 
-                float t = 1 - (jumpTimer / jumpTime);  // Normalized time [0, 1]
-                currentJumpVelocity = maxJumpVelocity * (t * t);
+                // float t = 1 - (jumpTimer / jumpTime);  // Normalized time [0, 1]
+                // currentJumpVelocity = maxJumpVelocity * (t * t);
             }
             if (jumpTimer < 0.0f) {
                 currentJumpVelocity = -2.0f;
