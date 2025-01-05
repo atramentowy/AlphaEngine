@@ -34,7 +34,8 @@ public:
         body = new btRigidBody(rigidbodyCI);
 
         // Add the body to the dynamics world
-        world->addRigidBody(body);  // Don't forget to add the body to the world
+        world->addRigidBody(body);
+        body->setGravity(world->getGravity()); // set body gravity
     }
 
     ~PhysicsBody() {
@@ -56,23 +57,24 @@ public:
     void ApplyMovement(const Vector3& movement, float speed) {
         btVector3 velocity = btVector3(movement.x, 0.0f, movement.z) * speed;  // Ignoring vertical movement
         // Apply the velocity to the physics body
-        //body->setLinearVelocity(velocity);
+        body->setLinearVelocity(velocity);
 
-            // Get the current velocity (if any)
-    btVector3 currentVelocity = body->getLinearVelocity();
+        // Get the current velocity (if any)
+        btVector3 currentVelocity = body->getLinearVelocity();
 
-    // Convert movement to velocity vector
-    btVector3 movementVelocity = btVector3(movement.x, 0.0f, movement.z) * speed;
+        // Convert movement to velocity vector
+        btVector3 movementVelocity = btVector3(movement.x, 0.0f, movement.z) * speed;
 
-    // Get the world gravity (this is the force of gravity in the world)
-    //btVector3 gravity = world->getGravity();
-    btVector3 gravity = btVector3(0, -9.81f, 0);
+        // Get the world gravity
+        //btVector3 gravity = world->getGravity();
+        btVector3 gravity = body->getGravity();
+        //btVector3 gravity = btVector3(0, -9.81f, 0);
 
-    // Combine gravity and movement velocity (gravity will still apply)
-    btVector3 newVelocity = movementVelocity + gravity;
+        // Combine gravity and movement velocity
+        btVector3 newVelocity = movementVelocity + gravity;
 
-    // Set the new velocity
-    body->setLinearVelocity(newVelocity);
+        // Set the new velocity
+        body->setLinearVelocity(newVelocity);
     }
 
     // Get position

@@ -20,13 +20,18 @@ public:
 
     Vector3 position = {0.0f, 0.0f, 0.0f};
 
-    // speed
+    // Speed
     float walkSpeed = 600.0f;
     float sprintSpeed = 900.0f;
 
-    // jump
-    float jumpStrength = 1000.0f;  // Jump force strength
+    // Jump
     bool isJumping = false;
+    bool isOnGround = false;
+
+    float maxJumpVelocity = 20.0f;
+    float currentJumpVelocity = 0.0f;
+    float jumpTime = 0.3f;
+    float jumpTimer = 0.0f;
 
     // Mouse
     float mouseSensitivity = 0.1f;
@@ -45,9 +50,13 @@ public:
         playerBody = new PhysicsBody(world, playerShape, btVector3{1.0f, 3.0f, 1.0f}, 50.0f);
         position = playerBody->GetPosition();
 
-        playerBody->body->setActivationState(DISABLE_DEACTIVATION);
-        playerBody->body->setAngularFactor(btVector3(0, 1, 0)); // make so that player shape collision shape will not fall on its side
-        playerBody->body->setDamping(0.0f, 0.0f);
+        playerBody->body->setActivationState(DISABLE_DEACTIVATION); // Disable body sleep
+        playerBody->body->setAngularFactor(btVector3(0, 1, 0)); // Keep upright
+
+        // Reduce gravity for slower jump
+        btVector3 customGravity(0, -6.0f, 0); 
+        // playerBody->body->setGravity(customGravity);
+        // playerBody->body->setFriction(0.0f);
 
         camera.target = Vector3{0.0f, 0.0f, 0.0f};
         camera.position = Vector3{ 0.0f, 2.8f, 0.0f };
@@ -64,7 +73,6 @@ public:
         yaw -= mouseDelta.x * mouseSensitivity;
         pitch -= mouseDelta.y * mouseSensitivity;
 
-        //
         // Handle camera up/down rotation based on key input (arrows or Q/E)
         if (IsKeyDown(KEY_UP)) pitch += rotationSpeed * deltaTime;  // Look up
         if (IsKeyDown(KEY_DOWN)) pitch -= rotationSpeed * deltaTime;  // Look down
@@ -107,21 +115,39 @@ public:
             playerBody->ApplyMovement(movement, walkSpeed * deltaTime);
         }
 
-        // bool isOnGround = false;
-        // world->rayTest(playerBody->body->GetPosition(), rayEnd, rayCallback);
-        // if (rayCallback.hasHit()) {
-        //     isOnGround = true;
-        // } else {
-        //     isOnGround = false;
-        // }
+        // Check if character is on ground
+        float rayLength = 1.0f;
+        btVector3 rayStart = btVector3(position.x, position.y, position.z);
+        btVector3 rayEnd = rayStart - btVector3(0, 2.0f, 0) * rayLength;  // Cast a ray 1 unit below
+        btCollisionWorld::ClosestRayResultCallback rayCallback(rayStart, rayEnd);
+        world->rayTest(rayStart, rayEnd, rayCallback);
+        isOnGround = rayCallback.hasHit();
 
-        if(!isJumping && IsKeyDown(KEY_SPACE)) {
-            btVector3 jumpForce(0.0f, jumpStrength, 0.0f);
-            //playerBody->body->applyCentralForce(jumpForce);
-            playerBody->body->applyImpulse(jumpForce, btVector3(0.0f, 0.0f, 0.0f));
+        if(IsKeyDown(KEY_SPACE) && !isJumping && isOnGround) {
+            jumpTimer = jumpTime;
+            currentJumpVelocity = 0.0f;
             isJumping = true;
-        } else {
-            isJumping = false;
+            isOnGround = false;
+        }
+
+        if(isJumping) {
+            if(jumpTimer > 0.0f) {
+                jumpTimer -= deltaTime;
+                // currentJumpVelocity = maxJumpVelocity * (1 - (jumpTimer / jumpTime));
+
+                float t = 1 - (jumpTimer / jumpTime);  // Normalized time [0, 1]
+                currentJumpVelocity = maxJumpVelocity * (t * t);
+            }
+            if (jumpTimer < 0.0f) {
+                currentJumpVelocity = -2.0f;
+                isJumping = false;
+            }
+
+            btVector3 currentVelocity = playerBody->body->getLinearVelocity();
+
+            currentVelocity.setY(currentJumpVelocity);
+
+            playerBody->body->setLinearVelocity(currentVelocity);
         }
 
         // Update camera position and target
@@ -133,7 +159,7 @@ public:
         // Draw player cube
         if (cameraMode == CAMERA_THIRD_PERSON) {
             DrawCube(position, 1.0f, 2.0f, 1.0f, RED);
-        } 
+        }
         else if (cameraMode == CAMERA_FIRST_PERSON) {
             // DrawCubeWires(position, 1.0f, 2.0f, 1.0f, RED);
         }

@@ -25,6 +25,9 @@ public:
 
     Player player;
 
+    // pause state
+    bool paused = false;
+
     // cubes settings
     float heights[20] = { 0 };
     Vector3 positions[20] = { 0 };
@@ -61,30 +64,30 @@ public:
 
         player.Init(dynamicsWorld);
 
-        // Generates some random columns
-        // for (int i = 0; i < 20; i++)
-        // {
-        //     heights[i] = (float)GetRandomValue(1, 12);
-        //     positions[i] = Vector3{ (float)GetRandomValue(-15, 15), heights[i]/2.0f, (float)GetRandomValue(-15, 15) };
-        //     colors[i] = Color{ static_cast<unsigned char>(GetRandomValue(20, 255)), static_cast<unsigned char>(GetRandomValue(10, 55)), 30, 255 };
-        // }
-
-        //PhysicsBody* sphere = new PhysicsBody(physics.getWorldPointer(), spherePosition, 2.0f, 0.5f);
+        //Generates some random columns
+        for (int i = 0; i < 20; i++)
+        {
+            heights[i] = (float)GetRandomValue(1, 12);
+            positions[i] = Vector3{ (float)GetRandomValue(-15, 15), heights[i]/2.0f, (float)GetRandomValue(-15, 15) };
+            colors[i] = Color{ static_cast<unsigned char>(GetRandomValue(20, 255)), static_cast<unsigned char>(GetRandomValue(10, 55)), 30, 255 };
+        }
     }
 
     void Update(float deltaTime) override {
-        // Handle collision between objA and objB
-        int numManifolds = dynamicsWorld->getDispatcher()->getNumManifolds();
-        for (int i = 0; i < numManifolds; i++) {
-            btPersistentManifold* contactManifold = dynamicsWorld->getDispatcher()->getManifoldByIndexInternal(i);
-            const btCollisionObject* objA = contactManifold->getBody0();
-            const btCollisionObject* objB = contactManifold->getBody1();
-        }
-        
-        //spherePosition = sphere->GetPosition();
+        if(IsKeyPressed(KEY_P)) paused = !paused;
 
-        dynamicsWorld->stepSimulation(1.0f / 60.0f);
-        player.Update(deltaTime);
+        if(!paused) {
+            // Handle collision between objA and objB
+            int numManifolds = dynamicsWorld->getDispatcher()->getNumManifolds();
+            for (int i = 0; i < numManifolds; i++) {
+                btPersistentManifold* contactManifold = dynamicsWorld->getDispatcher()->getManifoldByIndexInternal(i);
+                const btCollisionObject* objA = contactManifold->getBody0();
+                const btCollisionObject* objB = contactManifold->getBody1();
+            }
+
+            dynamicsWorld->stepSimulation(1.0f / 60.0f);
+            player.Update(deltaTime);
+        }
     }
 
     void Draw() override {
@@ -94,8 +97,6 @@ public:
             DrawGrid(30, 1.0f);
 
             // btVector3 position = spherePosition;
-            // std::cout << "Sphere Position: " << position.getX() << ", " << position.getY() << ", " << position.getZ() << std::endl;
-            
             DrawCube(Vector3{ -16.0f, 2.5f, 0.0f }, 1.0f, 5.0f, 32.0f, BLUE);     // Draw a blue wall
             DrawCube(Vector3{ 16.0f, 2.5f, 0.0f }, 1.0f, 5.0f, 32.0f, LIME);      // Draw a green wall
             DrawCube(Vector3{ 0.0f, 2.5f, 16.0f }, 32.0f, 5.0f, 1.0f, GOLD);      // Draw a yellow wall
@@ -111,6 +112,10 @@ public:
         EndMode3D();
 
         // Draw ui
+        if (paused) { // Draw pause menu
+            DrawText("Paused", 300, 300, 40, BLACK);
+        }
+
         DrawRectangle(600, 0, 195, 120, Fade(BLACK, 0.5f));
 
         DrawText("Player status:", 610, 5, 10, RED);
@@ -132,6 +137,7 @@ public:
         );
         DrawText(TextFormat("- position: (%06.3f, %06.3f, %06.3f)", player.camera.position.x, player.camera.position.y, player.camera.position.z), 610, 65, 10, WHITE);
         DrawText(TextFormat("- target: (%06.3f, %06.3f, %06.3f)", player.camera.target.x, player.camera.target.y, player.camera.target.z), 610, 75, 10, WHITE);
+        DrawText(TextFormat("isOnGround: (%06.3f)", player.isOnGround), 610, 85, 10, WHITE);
     }
 
     void Unload() override {

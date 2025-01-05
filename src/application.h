@@ -35,7 +35,8 @@ public:
         gameScene->SetSceneManager(GetSceneManager());
 
         // Set initial scene
-        sceneManager.SetScene(mainMenuScene);
+        sceneManager.SetScene(gameScene);
+        // sceneManager.SetScene(mainMenuScene);
     }
 
     void Run() {
