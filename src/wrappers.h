@@ -6,18 +6,16 @@
 class ModelWrapper {
 public:
     Model model;
-    Vector3 position;
 
-    ModelWrapper(const char* modelPath, Vector3 pos) {
+    ModelWrapper(const char* modelPath) {
         model = LoadModel(modelPath);
-        position = pos;
     }
 
     ~ModelWrapper() {
         UnloadModel(model);
     }
 
-    void Draw() {
+    void Draw(Vector3 position) {
         DrawModel(model, position, 1.0f, WHITE);
     }
 };

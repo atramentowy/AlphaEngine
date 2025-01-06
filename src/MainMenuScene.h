@@ -1,8 +1,9 @@
 #ifndef MAIN_MENU_SCENE_H
 #define MAIN_MENU_SCENE_H
 
-#include "scene.h"
-#include "game_scene.h"
+#include "Scene.h"
+#include "GameScene.h"
+
 #include <raylib.h>
 #include <iostream>
 

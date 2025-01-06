@@ -1,9 +1,10 @@
 #ifndef PLAYER_H
 #define PLAYER_H
 
+#include "PhysicsBody.h"
+
 #include <raylib.h>
 #include <raymath.h>
-#include "physics_body.h"
 
 class Player { // no private variables
 public:

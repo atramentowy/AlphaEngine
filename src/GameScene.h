@@ -1,13 +1,14 @@
 #ifndef GAME_SCENE_H
 #define GAME_SCENE_H
 
-#include "scene.h"
+#include "Scene.h"
+#include "Player.h"
+#include "Skybox.h"
+#include "Wrappers.h"
+#include "GameObject.h"
 
 #include <raylib.h>
 #include <iostream>
-
-#include "player.h"
-#include "skybox.h"
 
 class GameScene : public Scene {
 public:
@@ -28,10 +29,22 @@ public:
     Skybox skybox;
 
     // monkey model
-    Model model = LoadModel("D:/Projects/raylib_game/res/monkey.obj");
-    Texture2D texture = LoadTexture("D:/Projects/raylib_game/res/monkey.jpg");
+
+
+    btCollisionShape* bodyShape = new btBoxShape(btVector3(1.0f, 1.0f, 1.0f));
+    GameObject* object;
     
-    Vector3 modelPosition = { 0.0f, 1.0f, 0.0f };
+
+    //Model model = LoadModel("D:/Projects/raylib_game/res/monkey.obj");
+    //Texture2D texture = LoadTexture("D:/Projects/raylib_game/res/monkey.jpg");
+    
+    //Vector3 modelPosition = { 0.0f, 1.0f, 0.0f };
+
+    // test
+    // Vector3 cubePosition = { 0.0f, 1.0f, 0.0f };
+    // Vector3 cubeSize = { 2.0f, 2.0f, 2.0f };
+    // Ray ray = { 0 };                    // Picking line ray
+    // RayCollision collision = { 0 };     // Ray collision hit info
 
     // pause state
     bool paused = false;
@@ -72,6 +85,10 @@ public:
 
         player.Init(dynamicsWorld);
 
+
+        //
+        object = new GameObject(dynamicsWorld, bodyShape, btVector3{0.0f, 0.0f, 0.0f}, 1.0f, "D:/Projects/raylib_game/res/monkey.obj", "D:/Projects/raylib_game/res/monkey.jpg");
+
         //Generates some random columns
         // for (int i = 0; i < 20; i++)
         // {
@@ -79,13 +96,33 @@ public:
         //     positions[i] = Vector3{ (float)GetRandomValue(-15, 15), heights[i]/2.0f, (float)GetRandomValue(-15, 15) };
         //     colors[i] = Color{ static_cast<unsigned char>(GetRandomValue(20, 255)), static_cast<unsigned char>(GetRandomValue(10, 55)), 30, 255 };
         // }
-        model.materials[0].maps[MATERIAL_MAP_DIFFUSE].texture = texture;
+        // model.materials[0].maps[MATERIAL_MAP_DIFFUSE].texture = texture;
     }
 
     void Update(float deltaTime) override {
         if(IsKeyPressed(KEY_P)) paused = !paused;
 
         if(!paused) {
+            /*
+            // Test of interaction system
+            // Toggle camera controls
+            if (IsMouseButtonPressed(MOUSE_BUTTON_RIGHT))
+            {
+                if (IsCursorHidden()) EnableCursor();
+                else DisableCursor();
+            }
+            // toggle camera controls
+            if(IsMouseButtonPressed(MOUSE_BUTTON_LEFT)) {
+                if(!collision.hit) {
+                    ray = GetScreenToWorldRay(GetMousePosition(), player.camera);
+                                    // Check collision between ray and box
+                collision = GetRayCollisionBox(ray,
+                            BoundingBox{Vector3{ cubePosition.x - cubeSize.x/2, cubePosition.y - cubeSize.y/2, cubePosition.z - cubeSize.z/2 },
+                                          Vector3{ cubePosition.x + cubeSize.x/2, cubePosition.y + cubeSize.y/2, cubePosition.z + cubeSize.z/2 }});
+                }
+                else collision.hit = false;
+            } */
+
             // Handle collision between objA and objB
             int numManifolds = dynamicsWorld->getDispatcher()->getNumManifolds();
             for (int i = 0; i < numManifolds; i++) {
@@ -125,7 +162,26 @@ public:
             //     DrawCubeWires(positions[i], 2.0f, heights[i], 2.0f, MAROON);
             // }
 
-            DrawModel(model, modelPosition, 1.0f, GRAY);
+            /*
+            if (collision.hit)
+            {
+                DrawCube(cubePosition, cubeSize.x, cubeSize.y, cubeSize.z, RED);
+                DrawCubeWires(cubePosition, cubeSize.x, cubeSize.y, cubeSize.z, MAROON);
+
+                DrawCubeWires(cubePosition, cubeSize.x + 0.2f, cubeSize.y + 0.2f, cubeSize.z + 0.2f, GREEN);
+            }
+            else
+            {
+                DrawCube(cubePosition, cubeSize.x, cubeSize.y, cubeSize.z, GRAY);
+                DrawCubeWires(cubePosition, cubeSize.x, cubeSize.y, cubeSize.z, DARKGRAY);
+            }
+
+            DrawRay(ray, MAROON);
+            */
+
+
+            //DrawModel(model, modelPosition, 1.0f, GRAY);
+            object->Draw();
 
             player.Draw();
 
@@ -133,8 +189,10 @@ public:
 
         // Draw ui
         if (paused) { // Draw pause menu
-            DrawText("Paused", 300, 300, 40, BLACK);
+            DrawText("Paused", 300, 300, 40, BLACK); 
         }
+
+        //if (collision.hit) DrawText("BOX SELECTED", (GetScreenWidth() - MeasureText("BOX SELECTED", 30)) / 2, (int)(GetScreenHeight() * 0.1f), 30, GREEN);
 
         DrawRectangle(600, 0, 195, 120, Fade(BLACK, 0.5f));
 
@@ -157,7 +215,7 @@ public:
         );
         DrawText(TextFormat("- position: (%06.3f, %06.3f, %06.3f)", player.camera.position.x, player.camera.position.y, player.camera.position.z), 610, 65, 10, WHITE);
         DrawText(TextFormat("- target: (%06.3f, %06.3f, %06.3f)", player.camera.target.x, player.camera.target.y, player.camera.target.z), 610, 75, 10, WHITE);
-        DrawFPS(10, 10);
+        DrawText(TextFormat("Fps: %i", GetFPS()), 610, 85, 10, WHITE);
     }
 
     void Unload() override {
@@ -172,8 +230,9 @@ public:
         delete collisionConfig;
         delete broadphase;
 
-        UnloadTexture(texture);
-        UnloadModel(model);
+        //UnloadTexture(texture);
+        //UnloadModel(model);
+        delete object;
     }
 };
 

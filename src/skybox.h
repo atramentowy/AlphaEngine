@@ -1,11 +1,11 @@
 #ifndef SKYBOX_H
 #define SKYBOX_H
 
+#include "Player.h"
+
 #include <raylib.h>
 #include <rlgl.h>
 #include <iostream>
-
-#include "player.h"
 
 class Skybox {
 public:

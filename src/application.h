@@ -1,9 +1,10 @@
 #ifndef APPLICATION_H
 #define APPLICATION_H
 
-#include "scene_manager.h"
-#include "main_menu_scene.h"
-#include "game_scene.h"
+#include "SceneManager.h"
+#include "MainMenuScene.h"
+#include "GameScene.h"
+
 #include <raylib.h>
 
 #include <iostream>
@@ -23,7 +24,7 @@ public:
     }
 
     void Init() {
-        InitWindow(800, 600, "Raylib fps game");
+        InitWindow(800, 600, "Raylib Game");
         SetTargetFPS(60);
         HideCursor();
 
