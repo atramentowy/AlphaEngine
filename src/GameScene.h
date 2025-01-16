@@ -28,23 +28,12 @@ public:
     Player player;
     Skybox skybox;
 
-    // monkey model
-
-
+    // Monkey model
     btCollisionShape* bodyShape = new btBoxShape(btVector3(1.0f, 1.0f, 1.0f));
+
+    // Create object pointers
     GameObject* object;
-    
-
-    //Model model = LoadModel("D:/Projects/raylib_game/res/monkey.obj");
-    //Texture2D texture = LoadTexture("D:/Projects/raylib_game/res/monkey.jpg");
-    
-    //Vector3 modelPosition = { 0.0f, 1.0f, 0.0f };
-
-    // test
-    // Vector3 cubePosition = { 0.0f, 1.0f, 0.0f };
-    // Vector3 cubeSize = { 2.0f, 2.0f, 2.0f };
-    // Ray ray = { 0 };                    // Picking line ray
-    // RayCollision collision = { 0 };     // Ray collision hit info
+    GameObject* object1;
 
     // pause state
     bool paused = false;
@@ -85,44 +74,15 @@ public:
 
         player.Init(dynamicsWorld);
 
-
         //
-        object = new GameObject(dynamicsWorld, bodyShape, btVector3{0.0f, 0.0f, 0.0f}, 1.0f, "D:/Projects/raylib_game/res/monkey.obj", "D:/Projects/raylib_game/res/monkey.jpg");
-
-        //Generates some random columns
-        // for (int i = 0; i < 20; i++)
-        // {
-        //     heights[i] = (float)GetRandomValue(1, 12);
-        //     positions[i] = Vector3{ (float)GetRandomValue(-15, 15), heights[i]/2.0f, (float)GetRandomValue(-15, 15) };
-        //     colors[i] = Color{ static_cast<unsigned char>(GetRandomValue(20, 255)), static_cast<unsigned char>(GetRandomValue(10, 55)), 30, 255 };
-        // }
-        // model.materials[0].maps[MATERIAL_MAP_DIFFUSE].texture = texture;
+        object = new GameObject(dynamicsWorld, bodyShape, btVector3{0.0f, 5.0f, 0.0f}, 1.0f, "D:/Projects/raylib_game/res/monkey.obj", "D:/Projects/raylib_game/res/monkey.jpg");
+        object1 = new GameObject(dynamicsWorld, bodyShape, btVector3{0.0f, 5.0f, 0.0f}, 1.0f, "D:/Projects/raylib_game/res/monkey.obj", "D:/Projects/raylib_game/res/monkey.jpg");
     }
 
     void Update(float deltaTime) override {
         if(IsKeyPressed(KEY_P)) paused = !paused;
 
         if(!paused) {
-            /*
-            // Test of interaction system
-            // Toggle camera controls
-            if (IsMouseButtonPressed(MOUSE_BUTTON_RIGHT))
-            {
-                if (IsCursorHidden()) EnableCursor();
-                else DisableCursor();
-            }
-            // toggle camera controls
-            if(IsMouseButtonPressed(MOUSE_BUTTON_LEFT)) {
-                if(!collision.hit) {
-                    ray = GetScreenToWorldRay(GetMousePosition(), player.camera);
-                                    // Check collision between ray and box
-                collision = GetRayCollisionBox(ray,
-                            BoundingBox{Vector3{ cubePosition.x - cubeSize.x/2, cubePosition.y - cubeSize.y/2, cubePosition.z - cubeSize.z/2 },
-                                          Vector3{ cubePosition.x + cubeSize.x/2, cubePosition.y + cubeSize.y/2, cubePosition.z + cubeSize.z/2 }});
-                }
-                else collision.hit = false;
-            } */
-
             // Handle collision between objA and objB
             int numManifolds = dynamicsWorld->getDispatcher()->getNumManifolds();
             for (int i = 0; i < numManifolds; i++) {
@@ -151,37 +111,12 @@ public:
             DrawGrid(50, 2.0f);
             DrawPlane(Vector3{-0.01f, -0.01f, -0.01f}, Vector2{100.0f, 100.0f}, WHITE);
 
-            // btVector3 position = spherePosition;
-            DrawCube(Vector3{ -16.0f, 2.5f, 0.0f }, 1.0f, 5.0f, 32.0f, RED);     // Draw a blue wall
-            DrawCube(Vector3{ 16.0f, 2.5f, 0.0f }, 1.0f, 5.0f, 32.0f, LIME);      // Draw a green wall
-            DrawCube(Vector3{ 0.0f, 2.5f, 16.0f }, 32.0f, 5.0f, 1.0f, GOLD);      // Draw a yellow wall
+            DrawCube(Vector3{ -16.0f, 2.5f, 0.0f }, 1.0f, 5.0f, 32.0f, RED); // Draw a blue wall
+            DrawCube(Vector3{ 16.0f, 2.5f, 0.0f }, 1.0f, 5.0f, 32.0f, LIME); // Draw a green wall
+            DrawCube(Vector3{ 0.0f, 2.5f, 16.0f }, 32.0f, 5.0f, 1.0f, GOLD); // Draw a yellow wall
 
-            //Draw some cubes around
-            // for (int i = 0; i < 20; i++) {
-            //     DrawCube(positions[i], 2.0f, heights[i], 2.0f, colors[i]);
-            //     DrawCubeWires(positions[i], 2.0f, heights[i], 2.0f, MAROON);
-            // }
-
-            /*
-            if (collision.hit)
-            {
-                DrawCube(cubePosition, cubeSize.x, cubeSize.y, cubeSize.z, RED);
-                DrawCubeWires(cubePosition, cubeSize.x, cubeSize.y, cubeSize.z, MAROON);
-
-                DrawCubeWires(cubePosition, cubeSize.x + 0.2f, cubeSize.y + 0.2f, cubeSize.z + 0.2f, GREEN);
-            }
-            else
-            {
-                DrawCube(cubePosition, cubeSize.x, cubeSize.y, cubeSize.z, GRAY);
-                DrawCubeWires(cubePosition, cubeSize.x, cubeSize.y, cubeSize.z, DARKGRAY);
-            }
-
-            DrawRay(ray, MAROON);
-            */
-
-
-            //DrawModel(model, modelPosition, 1.0f, GRAY);
             object->Draw();
+            object1->Draw();
 
             player.Draw();
 
@@ -191,8 +126,14 @@ public:
         if (paused) { // Draw pause menu
             DrawText("Paused", 300, 300, 40, BLACK); 
         }
+        // Draw crosshair
+        // Get the center of the screen
+        Vector2 center = { (float)GetScreenWidth() / 2, (float)GetScreenHeight() / 2 };
+        // Draw circle crosshair at the center
+        DrawCircleV(center, 2.0f, WHITE); // Circle with center and radius
+        // Optionally draw a border around the circle (like a ring)
+        DrawCircleLines((int)center.x, (int)center.y, 1.5f, BLACK); // Border around the circle
 
-        //if (collision.hit) DrawText("BOX SELECTED", (GetScreenWidth() - MeasureText("BOX SELECTED", 30)) / 2, (int)(GetScreenHeight() * 0.1f), 30, GREEN);
 
         DrawRectangle(600, 0, 195, 120, Fade(BLACK, 0.5f));
 
@@ -219,7 +160,6 @@ public:
     }
 
     void Unload() override {
-        //delete sphere;
         dynamicsWorld->removeRigidBody(groundBody);
         delete groundBody;
         delete groundMotionState;
@@ -230,9 +170,8 @@ public:
         delete collisionConfig;
         delete broadphase;
 
-        //UnloadTexture(texture);
-        //UnloadModel(model);
         delete object;
+        delete object1;
     }
 };
 

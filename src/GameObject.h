@@ -30,7 +30,9 @@ public:
     }
 
     void Update() {
-        // update physics?
+        float speed = 0.0f;
+        const Vector3 movement {0.0f, 0.0f, 0.0f};
+        body->ApplyMovement(movement, speed); // should be changed
     }
 
     void Draw() {
