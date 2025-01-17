@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.11)
-project(raylib_game)
+project(AlphaEngine)
 
 set(CMAKE_BUILD_TYPE "Debug")
 
@@ -30,36 +30,38 @@ endif()
 # bullet
 add_subdirectory(deps/bullet3)
 set(bullet3_SOURCE_DIR ${CMAKE_SOURCE_DIR}/deps/bullet3/)
+# Optionally fetch Bullet3 from Git (commented-out FetchContent example)
 # FetchContent_Declare(
 #     bullet3
 #     GIT_REPOSITORY git@github.com:bulletphysics/bullet3.git
-#     GIT_TAG master  # Or specify a release/tag/commit hash
-#     GIT_PROGRESS   TRUE
+#     GIT_TAG master
+#     GIT_PROGRESS TRUE
 #     EXTRA_GIT_ARGS --depth=1
 # )
-# Make sure the content is downloaded
 # FetchContent_MakeAvailable(bullet3)
-set(BUILD_EXAMPLES OFF CACHE BOOL "Disable building examples" FORCE)
 
 # Build Bullet3 from source
-set(BULLET3_BUILD_SHARED OFF CACHE BOOL "Build Bullet3 as static library" FORCE)
+set(BUILD_EXAMPLES OFF CACHE BOOL "Disable building Bullet3 examples" FORCE)
+set(BULLET3_BUILD_EXAMPLES OFF CACHE BOOL "Disable Bullet3 examples" FORCE)
+set(BULLET3_BUILD_SHARED OFF CACHE BOOL "Build Bullet3 as a static library" FORCE)
+set(BULLET3_USE_DOUBLE_PRECISION OFF CACHE BOOL "Disable double precision support" FORCE)
 set(BULLET3_BUILD_UNIT_TESTS OFF CACHE BOOL "Disable Bullet3 unit tests" FORCE)
 set(BULLET3_BUILD_EXAMPLES OFF CACHE BOOL "Disable Bullet3 examples" FORCE)
+set(BULLET3_BUILD_DEMOS OFF CACHE BOOL "Disable Bullet3 demos" FORCE)
 
 # Set Bullet3 include directory
 set(BULLET_INCLUDE_DIRS ${bullet3_SOURCE_DIR}/src)
 include_directories(${BULLET_INCLUDE_DIRS})
 
 # set(BULLET_LIBRARIES Bullet3Common Bullet3Dynamics Bullet3Collision Bullet3Math)
-
 # set(BULLET_LIBRARIES
 #     ${bullet3_BINARY_DIR}/build/lib/Debug/libBullet3Common_Debug.lib
 #     ${bullet3_BINARY_DIR}/build/lib/Debug/libBullet3Collision_Debug.lib
 #     ${bullet3_BINARY_DIR}/build/lib/Debug/libBullet3Dynamics_Debug.lib
 #     ${bullet3_BINARY_DIR}/build/lib/Debug/libBullet3Math_Debug.lib
 # )
-
 # target_link_directories(${PROJECT_NAME} PRIVATE ${bullet3_BINARY_DIR}/src)
+
 link_directories(${bullet3_BINARY_DIR}/src)
 
 if (CMAKE_BUILD_TYPE STREQUAL "Debug")

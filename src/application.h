@@ -2,8 +2,8 @@
 #define APPLICATION_H
 
 #include "SceneManager.h"
-#include "MainMenuScene.h"
-#include "GameScene.h"
+#include "MainMenu.h"
+#include "Game.h"
 
 #include <raylib.h>
 
@@ -13,31 +13,31 @@
 class Application {
 private:
     SceneManager sceneManager;
-    MainMenuScene* mainMenuScene;
-    GameScene* gameScene;
+    MainMenu* mainMenu;
+    Game* game;
 
 public:
-    Application() : sceneManager(), mainMenuScene(nullptr), gameScene(nullptr) {}
+    Application() : sceneManager(), mainMenu(nullptr), game(nullptr) {}
 
     SceneManager* GetSceneManager() {
         return &sceneManager;
     }
 
     void Init() {
-        InitWindow(800, 600, "Raylib Game");
+        InitWindow(800, 600, "AlphaEngine");
         SetTargetFPS(60);
         HideCursor();
 
         // Create scenes
-        mainMenuScene = new MainMenuScene();
-        gameScene = new GameScene();
+        mainMenu = new MainMenu();
+        game = new Game();
 
-        mainMenuScene->SetSceneManager(GetSceneManager());
-        gameScene->SetSceneManager(GetSceneManager());
+        mainMenu->SetSceneManager(GetSceneManager());
+        game->SetSceneManager(GetSceneManager());
 
         // Set initial scene
-        sceneManager.SetScene(gameScene);
-        // sceneManager.SetScene(mainMenuScene);
+        sceneManager.SetScene(game);
+        // sceneManager.SetScene(mainMenu);
     }
 
     void Run() {
@@ -53,14 +53,14 @@ public:
 
     void Cleanup() {
         // Unload and delete scenes to free memory
-        if (mainMenuScene) {
-            mainMenuScene->Unload();
-            delete mainMenuScene;
+        if (mainMenu) {
+            mainMenu->Unload();
+            delete mainMenu;
         }
 
-        if (gameScene) {
-            gameScene->Unload();
-            delete gameScene;
+        if (game) {
+            game->Unload();
+            delete game;
         }
 
         CloseWindow();

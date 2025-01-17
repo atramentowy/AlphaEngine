@@ -2,9 +2,11 @@
 #define SKYBOX_H
 
 #include "Player.h"
+#include "Filepath.h"
 
 #include <raylib.h>
 #include <rlgl.h>
+
 #include <iostream>
 
 class Skybox {
@@ -15,11 +17,12 @@ public:
 
     Skybox() {
         // Initialize skybox components
-        // cube = GenMeshCube(1.0f, 1.0f, 1.0f);
         skyboxMesh = GenMeshSphere(1.0f, 32, 32);
         skybox = LoadModelFromMesh(skyboxMesh);
 
-        skyboxShader = LoadShader("D:/Projects/raylib_game/src/shaders/skybox.vs", "D:/Projects/raylib_game/src/shaders/skybox.fs");
+        fs::path shaderVSPath = projectRoot/"src"/"shaders"/"skybox.vs";
+        fs::path shaderFSPath = projectRoot/"src"/"shaders"/"skybox.fs";
+        skyboxShader = LoadShader(shaderVSPath.string().c_str(), shaderFSPath.string().c_str());
         // Configure skybox material
         Material skyboxMaterial = LoadMaterialDefault();
         skyboxMaterial.shader = skyboxShader;
@@ -38,7 +41,7 @@ public:
         SetShaderValueMatrix(skybox.materials[0].shader, GetShaderLocation(skybox.materials[0].shader, "view"), view);
         SetShaderValueMatrix(skybox.materials[0].shader, GetShaderLocation(skybox.materials[0].shader, "projection"), projection);
 
-        rlDisableBackfaceCulling();  // Ensure inside of the cube is visible
+        rlDisableBackfaceCulling();  // Ensure inside of the model is visible
         rlDisableDepthMask();
         DrawModel(skybox, player->camera.position, 1.0f, WHITE);
         rlEnableBackfaceCulling();

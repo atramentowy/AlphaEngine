@@ -2,27 +2,26 @@
 #define MAIN_MENU_SCENE_H
 
 #include "Scene.h"
-#include "GameScene.h"
+#include "Game.h"
 
 #include <raylib.h>
 #include <iostream>
 
-class MainMenuScene : public Scene {
+class MainMenu : public Scene {
 public:
     void Init() override {
         ShowCursor();
         EnableCursor();
-        // Initialize main menu etc.
+        // Initialize main menu
         std::cout<<"init main menu"<<std::endl;
     }
 
     void Update(float deltaTime) override {
         // Transition to the game scene
-        // sceneManager.SetScene(new GameScene());
         std::cout<<"update main menu"<<std::endl;
         if (IsKeyPressed(KEY_ENTER) || IsGestureDetected(GESTURE_TAP))
         {
-            sceneManager->SetScene(new GameScene());
+            sceneManager->SetScene(new Game());
         }
     }
 

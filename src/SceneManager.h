@@ -17,7 +17,6 @@ public:
         if (currentScene) {
             currentScene->Unload();
         }
-
         currentScene = scene;
 
         // Initialize the new scene
