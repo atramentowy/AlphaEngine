@@ -1,8 +1,10 @@
 #ifndef PHYSICS_BODY_H
 #define PHYSICS_BODY_H
 
-#include <raylib.h>
-#include <btBulletDynamicsCommon.h>
+#include "Physics.h"
+
+// #include <raylib.h>
+// #include <btBulletDynamicsCommon.h>
 
 class PhysicsBody {
 public:

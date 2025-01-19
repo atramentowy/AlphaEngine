@@ -44,7 +44,7 @@ set(bullet3_SOURCE_DIR ${CMAKE_SOURCE_DIR}/deps/bullet3/)
 # FetchContent_MakeAvailable(bullet3)
 
 # Build Bullet3 from source
-set(BUILD_EXAMPLES OFF CACHE BOOL "Disable building Bullet3 examples" FORCE)
+set(BULLET3_UNIT_TESTS OFF CACHE BOOL "Build Bullet unit tests" FORCE)
 set(BULLET3_BUILD_EXAMPLES OFF CACHE BOOL "Disable Bullet3 examples" FORCE)
 set(BULLET3_BUILD_SHARED OFF CACHE BOOL "Build Bullet3 as a static library" FORCE)
 set(BULLET3_USE_DOUBLE_PRECISION OFF CACHE BOOL "Disable double precision support" FORCE)
