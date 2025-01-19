@@ -8,6 +8,7 @@
 #include "Skybox.h"
 #include "Wrappers.h"
 #include "GameObject.h"
+#include "AssetManager.h"
 
 #include <raylib.h>
 #include <iostream>
@@ -26,6 +27,8 @@ public:
     btTransform groundTransform;
     btDefaultMotionState* groundMotionState;
     btRigidBody* groundBody;
+
+    AssetManager manager;
 
     Player player;
     Skybox skybox;
@@ -48,6 +51,7 @@ public:
     void Init() override {
         HideCursor();
         DisableCursor();
+
         // Bullet Physics members
         collisionConfig = new btDefaultCollisionConfiguration();
         dispatcher = new btCollisionDispatcher(collisionConfig);
@@ -103,11 +107,7 @@ public:
     void Draw() override {
         Matrix view = GetCameraMatrix(player.camera);
         Matrix projection = MatrixPerspective(45.0f * DEG2RAD, (float)GetScreenWidth() / GetScreenHeight(), 0.1f, 1000.0f);
-        // Remove translation from the view matrix for the skybox
-        view.m12 = 0.0f;  // Reset X translation
-        view.m13 = 0.0f;  // Reset Y translation
-        view.m14 = 0.0f;  // Reset Z translation
-
+        
         ClearBackground(RAYWHITE);
 
         UpdateDebug();
@@ -126,21 +126,15 @@ public:
             object1->Draw();
 
             player.Draw();
-
         EndMode3D();
 
         // Draw ui
         if (paused) { // Draw pause menu
             DrawText("Paused", 300, 300, 40, BLACK); 
+        } else {
+            DrawCrosshair();
+            DrawInfo(&player);
         }
-        // Draw crosshair
-        // Get the center of the screen
-        Vector2 center = { (float)GetScreenWidth() / 2, (float)GetScreenHeight() / 2 };
-        // Draw circle crosshair at the center
-        DrawCircleV(center, 2.0f, WHITE); // Circle with center and radius
-        // Optionally draw a border around the circle (like a ring)
-        DrawCircleLines((int)center.x, (int)center.y, 1.5f, BLACK); // Border around the circle
-
 
         DrawInfo(&player);
     }

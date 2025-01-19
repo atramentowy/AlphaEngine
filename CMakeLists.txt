@@ -1,6 +1,9 @@
 cmake_minimum_required(VERSION 3.11)
 project(AlphaEngine)
 
+set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+
 set(CMAKE_BUILD_TYPE "Debug")
 
 # Set the runtime library to be used for both Bullet Physics and Raylib (choose MDd or MTd)
@@ -46,7 +49,6 @@ set(BULLET3_BUILD_EXAMPLES OFF CACHE BOOL "Disable Bullet3 examples" FORCE)
 set(BULLET3_BUILD_SHARED OFF CACHE BOOL "Build Bullet3 as a static library" FORCE)
 set(BULLET3_USE_DOUBLE_PRECISION OFF CACHE BOOL "Disable double precision support" FORCE)
 set(BULLET3_BUILD_UNIT_TESTS OFF CACHE BOOL "Disable Bullet3 unit tests" FORCE)
-set(BULLET3_BUILD_EXAMPLES OFF CACHE BOOL "Disable Bullet3 examples" FORCE)
 set(BULLET3_BUILD_DEMOS OFF CACHE BOOL "Disable Bullet3 demos" FORCE)
 
 # Set Bullet3 include directory
@@ -78,9 +80,6 @@ else()
     )
 endif()
 
-# EnTT
-add_subdirectory(deps/entt)
-
 # add executable
 add_executable(
   ${PROJECT_NAME}
@@ -91,7 +90,6 @@ target_link_libraries(
   ${PROJECT_NAME}
   raylib
   ${BULLET_LIBRARIES}
-  EnTT
 )
 
 # Ensure the Bullet3 build directory is linked for dynamic libraries

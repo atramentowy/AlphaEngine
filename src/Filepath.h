@@ -5,7 +5,8 @@
 
 namespace fs = std::filesystem;
 
-// fs::path shaderVPath = projectRoot/"res"/"shaders"/"block.vert";
+// usage
+// fs::path shaderVPath = projectRoot/"res"/"shaders"/"shader.vert";
 
 fs::path exePath = fs::current_path();
 fs::path projectRoot = exePath.parent_path().parent_path();

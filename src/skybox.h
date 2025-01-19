@@ -38,6 +38,11 @@ public:
     }
 
     void Draw(Player* player, Matrix view, Matrix projection) {
+        // Remove translation from the view matrix for the skybox
+        view.m12 = 0.0f;  // Reset X translation
+        view.m13 = 0.0f;  // Reset Y translation
+        view.m14 = 0.0f;  // Reset Z translation
+
         SetShaderValueMatrix(skybox.materials[0].shader, GetShaderLocation(skybox.materials[0].shader, "view"), view);
         SetShaderValueMatrix(skybox.materials[0].shader, GetShaderLocation(skybox.materials[0].shader, "projection"), projection);
 
