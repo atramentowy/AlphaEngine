@@ -17,6 +17,18 @@
 #include <raylib.h>
 #include <iostream>
 
+
+#include "rlgl.h"
+#include "raymath.h"
+
+#include "rlights.h"
+
+#if defined(PLATFORM_DESKTOP)
+    #define GLSL_VERSION            330
+#else   // PLATFORM_ANDROID, PLATFORM_WEB
+    #define GLSL_VERSION            100
+#endif
+
 class Game : public Scene {
 public:
     AssetManager manager;
@@ -24,8 +36,10 @@ public:
     Player player;
     Skybox skybox;
 
-    // Dialogue Manager
-    DialogueManager dialogueManager;
+    // Create a point light
+    Light light = CreateLight(LIGHT_POINT, Vector3{ 4.0f, 4.0f, 4.0f }, Vector3{ 0.0f, 0.0f, 0.0f }, RED, 1.0f);
+
+    //DialogueManager dialogueManager;
 
     // Monkey model
     btCollisionShape* bodyShape = new btBoxShape(btVector3(1.0f, 1.0f, 1.0f));
@@ -44,19 +58,21 @@ public:
         player.Init(physics.dynamicsWorld);
 
         // Load bindings
-        fs::path bindingsPath = projectRoot/"res"/"dialogue.txt";
+        fs::path bindingsPath = projectRoot/"res"/"bindings.txt";
         if (!InputManager::LoadBindingsFromFile(bindingsPath.string().c_str())) {
             std::cerr << "Failed to load bindings!" << std::endl;
             CloseWindow();
             exit(0); // Exit if bindings fail to load
         }
 
+        /*
         // Load dialogue from file
         fs::path filePath = projectRoot/"res"/"dialogue.txt";
         if (!dialogueManager.LoadDialogueFromFile(filePath.string().c_str())) {
             CloseWindow();
             exit(0); // Exit if dialogue file couldn't be loaded
         }
+        */
 
         // Game objects
         fs::path modelPath = projectRoot/"res"/"monkey.obj";
@@ -71,8 +87,7 @@ public:
         if(!paused) {
             physics.Update();
             player.Update(deltaTime);
-            // Update the dialogue manager
-            dialogueManager.Update(deltaTime);
+            // dialogueManager.Update(deltaTime);
         }
     }
 
@@ -107,7 +122,7 @@ public:
         } else {
             DrawCrosshair();
             DrawInfo(&player);
-            dialogueManager.Draw();
+            // dialogueManager.Draw();
         }
         DrawInfo(&player);
     }

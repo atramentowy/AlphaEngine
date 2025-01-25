@@ -6,6 +6,7 @@
 
 bool wireframeEnabled = false;
 bool backfaceCullingEnabled = true;
+bool vsyncEnabled = true;
 
 void UpdateDebug() {
     if (IsKeyPressed(KEY_F1)) { 
@@ -24,6 +25,15 @@ void UpdateDebug() {
             rlEnableBackfaceCulling();
         }
         backfaceCullingEnabled = !backfaceCullingEnabled;
+    }
+
+    if(IsKeyPressed(KEY_F3)) {
+        if (vsyncEnabled) {
+            SetTargetFPS(0);
+        } else {
+            SetTargetFPS(60); // 60
+        }
+        vsyncEnabled = !vsyncEnabled;
     }
 }
 

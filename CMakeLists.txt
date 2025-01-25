@@ -31,8 +31,17 @@ if (NOT raylib_FOUND)
 endif()
 
 # bullet
+
+# Disable Bullet3 unit tests, examples, demos, and shared library build
+set(BULLET3_BUILD_UNIT_TESTS OFF CACHE BOOL "Build Bullet3 unit tests" FORCE)
+set(BULLET3_BUILD_EXAMPLES OFF CACHE BOOL "Build Bullet3 examples" FORCE)
+set(BULLET3_BUILD_DEMOS OFF CACHE BOOL "Build Bullet3 demos" FORCE)
+set(BULLET3_BUILD_SHARED OFF CACHE BOOL "Build Bullet3 as a static library" FORCE)
+set(BULLET3_USE_DOUBLE_PRECISION OFF CACHE BOOL "Disable double precision" FORCE)
+
 add_subdirectory(deps/bullet3)
 set(bullet3_SOURCE_DIR ${CMAKE_SOURCE_DIR}/deps/bullet3/)
+
 # Optionally fetch Bullet3 from Git (commented-out FetchContent example)
 # FetchContent_Declare(
 #     bullet3
@@ -43,13 +52,7 @@ set(bullet3_SOURCE_DIR ${CMAKE_SOURCE_DIR}/deps/bullet3/)
 # )
 # FetchContent_MakeAvailable(bullet3)
 
-# Build Bullet3 from source
-set(BULLET3_UNIT_TESTS OFF CACHE BOOL "Build Bullet unit tests" FORCE)
-set(BULLET3_BUILD_EXAMPLES OFF CACHE BOOL "Disable Bullet3 examples" FORCE)
-set(BULLET3_BUILD_SHARED OFF CACHE BOOL "Build Bullet3 as a static library" FORCE)
-set(BULLET3_USE_DOUBLE_PRECISION OFF CACHE BOOL "Disable double precision support" FORCE)
-set(BULLET3_BUILD_UNIT_TESTS OFF CACHE BOOL "Disable Bullet3 unit tests" FORCE)
-set(BULLET3_BUILD_DEMOS OFF CACHE BOOL "Disable Bullet3 demos" FORCE)
+
 
 # Set Bullet3 include directory
 set(BULLET_INCLUDE_DIRS ${bullet3_SOURCE_DIR}/src)

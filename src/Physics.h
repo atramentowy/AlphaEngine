@@ -44,6 +44,9 @@ public:
     }
 
     void Update() {
+        float deltaTime = GetFrameTime();
+        float fixedTimeStep = 1.0f / 60.0f; // 60hz physics
+
         // Handle collision between objA and objB
         int numManifolds = dynamicsWorld->getDispatcher()->getNumManifolds();
         for (int i = 0; i < numManifolds; i++) {
@@ -51,8 +54,8 @@ public:
             const btCollisionObject* objA = contactManifold->getBody0();
             const btCollisionObject* objB = contactManifold->getBody1();
         }
-        // dynamicsWorld->stepSimulation(1.0f / GetFPS());
-        dynamicsWorld->stepSimulation(1.0f / 60.0f);
+        dynamicsWorld->stepSimulation(deltaTime, 10, fixedTimeStep);
+        //dynamicsWorld->stepSimulation(1.0f / 60.0f);
     }
 
     void Unload() {

@@ -141,7 +141,7 @@ public:
 
         if(isJumping) {
             if(jumpTimer > 0.0f) {
-                jumpTimer -= deltaTime;
+                jumpTimer -= deltaTime; // frame dependent
                 currentJumpVelocity = maxJumpVelocity * (1 - (jumpTimer / jumpTime));
 
                 // float t = 1 - (jumpTimer / jumpTime);  // Normalized time [0, 1]

@@ -27,6 +27,8 @@ public:
         // Suppress info logs but keep warnings and errors
         SetTraceLogLevel(LOG_WARNING);
 
+        SetConfigFlags(FLAG_MSAA_2X);  // Enable 4x MSAA
+
         InitWindow(800, 600, "AlphaEngine");
         SetTargetFPS(60);
         HideCursor();

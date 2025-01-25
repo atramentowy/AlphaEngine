@@ -9,8 +9,17 @@
 
 #include "Filepath.h"
 
+
+
 class DialogueManager {
 private:
+    struct RectangleInt {
+        int x;
+        int y;
+        int width;
+        int height;
+    };
+
     std::vector<std::string> dialogueLines;
 
     int currentLine = 0;
@@ -21,6 +30,7 @@ private:
     float typingTimer = 0.0f;
 
     //
+    RectangleInt dialogueBoxInt = {50, 400, 700, 150};
     Rectangle dialogueBox = {50, 400, 700, 150};
     int fontSize = 20;
     Color textColor = BLACK;
@@ -75,11 +85,11 @@ public:
         DrawRectangleLinesEx(dialogueBox, 2, DARKGRAY);
 
         std::string displayedText = dialogueLines[currentLine].substr(0, currentChar);
-        DrawText(displayedText.c_str(), dialogueBox.x + 10, dialogueBox.y + 10, fontSize, textColor);
+        DrawText(displayedText.c_str(), dialogueBoxInt.x + 10, dialogueBoxInt.y + 10, fontSize, textColor);
 
         // Draw "Press space to continue" prompt when typing is done
         if (!isTyping) {
-            DrawText("Press SPACE to continue...", dialogueBox.x + 10, dialogueBox.y - 20, fontSize, textColor);
+            DrawText("Press ENTER to continue...", dialogueBoxInt.x + 10, dialogueBoxInt.y - 20, fontSize, textColor);
         }
     }
 
