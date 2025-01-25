@@ -1,0 +1,4 @@
+MoveLeft KEY_A
+MoveRight KEY_D
+Jump KEY_SPACE
+Shoot KEY_F

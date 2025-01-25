@@ -22,9 +22,7 @@ mkdir deps
 ```
 raylib will be downloaded automatically
 
-in `deps` should be two folders one with `bullet3` and `entt`
-if they are not there,
-you must clone compile and put them in `deps` folder
+in `deps` folder clone and build bullet physics library
 
 ```
 mkdir build && cd build

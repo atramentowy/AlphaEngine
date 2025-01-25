@@ -1,0 +1,4 @@
+Welcome to the simple dialogue manager!
+This version does not use text wrapping.
+Make sure your text lines fit the dialogue box.
+Press SPACE to continue each line.

@@ -24,6 +24,9 @@ public:
     }
 
     void Init() {
+        // Suppress info logs but keep warnings and errors
+        SetTraceLogLevel(LOG_WARNING);
+
         InitWindow(800, 600, "AlphaEngine");
         SetTargetFPS(60);
         HideCursor();

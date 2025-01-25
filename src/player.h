@@ -6,11 +6,11 @@
 #include <raylib.h>
 #include <raymath.h>
 
-class Player { // no private variables
-public:
+class Player {
+private:
     // Physics world pointer
     btDiscreteDynamicsWorld* world;
-
+public:
     // Camera
     Camera camera = { 0 };
     int cameraMode = CAMERA_FIRST_PERSON;
@@ -69,7 +69,7 @@ public:
         camera.projection = CAMERA_PERSPECTIVE;
     }
 
-    void Player::Update(float deltaTime) {
+    void Update(float deltaTime) {
         position = playerBody->GetPosition();
 
         // Get mouse input for camera rotation
